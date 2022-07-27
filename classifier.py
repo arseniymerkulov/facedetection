@@ -18,8 +18,11 @@ class Classifier:
         return tf.keras.Sequential([
             tf.keras.layers.Dense(128, activation='relu', input_shape=(128,)),
             tf.keras.layers.Dense(256, activation='relu'),
+            tf.keras.layers.Dense(512, activation='relu'),
+            tf.keras.layers.Dense(256, activation='relu'),
             tf.keras.layers.Dense(128, activation='relu'),
-            tf.keras.layers.Dense(2, activation='sigmoid')
+            tf.keras.layers.Dense(64, activation='relu'),
+            tf.keras.layers.Dense(len(hyperparams.classifier_categories), activation='softmax')
         ])
 
     @staticmethod
@@ -34,12 +37,14 @@ class Classifier:
                 with open(image_path, 'rb') as file:
                     image = json.loads(file.read())
 
-                image = np.array(image['features'])
+                image = np.array(image)
                 dataset.append(image)
-                labels.append([1., 0.] if directory == hyperparams.classifier_categories[0] else [0., 1.])
+
+                label = hyperparams.classifier_categories.index(directory)
+                labels.append(label)
 
         return np.array(dataset), np.array(labels)
 
     def classify(self, features):
         output = self.model(np.expand_dims(features, axis=0))
-        return hyperparams.classifier_categories[np.argmax(output)]
+        return hyperparams.classifier_categories[np.argmax(output)], np.max(output)

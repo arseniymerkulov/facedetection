@@ -9,8 +9,8 @@ from classifier import Classifier
 dataset, labels = Classifier.get_json_dataset()
 model = Classifier.get_model_architecture()
 model.compile(optimizer=tf.keras.optimizers.Adam(learning_rate=hyperparams.classifier_learning_rate),
-              loss=tf.keras.losses.BinaryCrossentropy(from_logits=True),
-              metrics=['accuracy'])
+              loss=tf.keras.losses.SparseCategoricalCrossentropy(from_logits=True),
+              metrics=[tf.keras.metrics.SparseCategoricalAccuracy()])
 
 model.summary()
 
@@ -28,8 +28,8 @@ history = model.fit(
     callbacks=[cp_callback]
 )
 
-acc = history.history['accuracy']
-val_acc = history.history['val_accuracy']
+acc = history.history['sparse_categorical_accuracy']
+val_acc = history.history['val_sparse_categorical_accuracy']
 
 loss = history.history['loss']
 val_loss = history.history['val_loss']

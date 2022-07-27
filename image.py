@@ -18,7 +18,12 @@ class Image:
 
     @staticmethod
     def load(path, image_width=hyperparams.image_width, image_height=None):
-        image = Image.preprocess(cv2.imread(path), image_width, image_height)
+        image = cv2.imread(path)
+
+        if image is None:
+            return None
+
+        image = Image.preprocess(image, image_width, image_height)
         image = cv2.cvtColor(image, cv2.COLOR_BGR2RGB)
 
         return image

@@ -1,7 +1,7 @@
 import cv2
 
 
-from final_form.image import Image
+from image import Image
 from detection_pipeline import DetectionPipeline
 
 

@@ -2,11 +2,12 @@ import glob
 import os
 import json
 import numpy as np
+import cv2
 
 
 import hyperparams
 from image import Image
-from detection_pipeline import DetectionPipeline
+from encoder import Encoder
 
 
 class NumpyEncoder(json.JSONEncoder):
@@ -16,8 +17,10 @@ class NumpyEncoder(json.JSONEncoder):
         return json.JSONEncoder.default(self, obj)
 
 
-pipeline = DetectionPipeline()
+encoder = Encoder()
 
+if not os.path.exists(hyperparams.classifier_dataset_json_path):
+    os.mkdir(hyperparams.classifier_dataset_json_path)
 
 for directory in os.listdir(hyperparams.classifier_dataset_image_path):
     images = glob.glob(f'{hyperparams.classifier_dataset_image_path}/{directory}/*.jpg')
@@ -32,9 +35,12 @@ for directory in os.listdir(hyperparams.classifier_dataset_image_path):
                            image_width=hyperparams.face_image_width,
                            image_height=hyperparams.face_image_height)
 
-        _, _, features = pipeline.run(image)
+        if image is None:
+            continue
+
+        features = encoder.encode(image)
         print(features)
 
         if len(features) > 0:
             with open(f'{json_directory_path}/{file_name}.json', 'w') as file:
-                file.write(json.dumps({"features": features[0]}, cls=NumpyEncoder))
+                file.write(json.dumps(features, cls=NumpyEncoder))
